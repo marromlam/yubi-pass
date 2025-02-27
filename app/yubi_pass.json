@@ -1,0 +1,7 @@
+{
+  "name": "yubi_pass",
+  "description": "Yubikey helper addon",
+  "path": "/path/to/yubi_pass.py",
+  "type": "stdio",
+  "allowed_extensions": [ "yubipass@marromlam" ]
+}
