@@ -1,0 +1,29 @@
+{
+  "description": "Easy OTP codes on the browser with a Yubikey",
+  "manifest_version": 2,
+  "name": "yubi-pass",
+  "version": "0.0.1",
+  "author": "marromlam <marromlam@gmail.com>",
+  "homepage_url": "https://github.com/marromlam/yubi-pass",
+  "icons": {
+    "48": "icons/star.png"
+  },
+
+  "background": {
+    "page": "background/page.html"
+  },
+
+  "permissions": ["nativeMessaging", "menus", "activeTab", "storage"],
+
+  "applications": {
+    "gecko": {
+      "id": "yubipass@marromlam",
+      "strict_min_version": "92.0"
+    }
+  },
+
+  "options_ui": {
+    "page": "ui/options.html",
+    "browser_style": true
+  }
+}
