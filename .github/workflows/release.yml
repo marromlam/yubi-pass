@@ -2,6 +2,8 @@ name: Build and Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
 
@@ -13,18 +15,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Determine version name
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "VERSION=nightly" >> $GITHUB_ENV
+          fi
+
       - name: Zip the mozilla folder
         run: |
-          zip -r yubipass-mozilla.zip mozilla/
+          zip -r yubipass-mozilla-${{ env.VERSION }}.zip mozilla/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: yubipass-mozilla
-          path: yubipass-mozilla.zip
+          name: yubipass-mozilla-${{ env.VERSION }}
+          path: yubipass-mozilla-${{ env.VERSION }}.zip
 
   release:
     needs: build
+    if: startsWith(github.ref, 'refs/tags/') # Only create a release for tagged commits
     runs-on: ubuntu-latest
 
     steps:
@@ -34,10 +46,10 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: yubipass-mozilla
+          name: yubipass-mozilla-${{ github.ref_name }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: yubipass-mozilla.zip
+          files: yubipass-mozilla-${{ github.ref_name }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
