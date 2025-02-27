@@ -26,13 +26,13 @@ jobs:
 
       - name: Zip the mozilla folder
         run: |
-          zip -r yubipass-mozilla-${{ env.VERSION }}.zip mozilla/
+          zip -r yubipass-mozilla-${{ env.VERSION }}.xpi mozilla/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: yubipass-mozilla-${{ env.VERSION }}
-          path: yubipass-mozilla-${{ env.VERSION }}.zip
+          path: yubipass-mozilla-${{ env.VERSION }}.xpi
 
   release:
     needs: build
@@ -51,5 +51,5 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: yubipass-mozilla-${{ github.ref_name }}.zip
+          files: yubipass-mozilla-${{ github.ref_name }}.xpi
           token: ${{ secrets.GITHUB_TOKEN }}
