@@ -23,17 +23,18 @@ browser.menus.create({
 });
 
 function getNativePort() {
-  return browser.runtime.connectNative("yubikey_bridge");
+  return browser.runtime.connectNative("yubi_pass");
 }
 
 async function generateOtp(info, tab) {
   let targetParams = getTargetParams(info, tab);
   let keyName = await getKeyName(info["pageUrl"]);
+  let pageUrl = await getKeyUrl(info["pageUrl"]);
   let message = {
     type: "generateOtp",
     target: targetParams,
     keyName: keyName,
-    pageUrl: info["pageUrl"],
+    pageUrl: pageUrl,
   };
   console.log("Sent message: " + JSON.stringify(message));
   port.postMessage(message);
@@ -44,6 +45,13 @@ async function getKeyName(url) {
   let codesMap = new Map(codes.map((i) => [i.domain, i.codeName]));
   let host = url.match(/:\/\/(.[^/]+)/)[1];
   return codesMap.get(host);
+}
+
+async function getKeyUrl(url) {
+  let codes = await getCodes();
+  let codesMap = new Map(codes.map((i) => [i.domain, i.codeName]));
+  let host = url.match(/:\/\/(.[^/]+)/)[1];
+  return host;
 }
 
 function getTargetParams(info, tab) {

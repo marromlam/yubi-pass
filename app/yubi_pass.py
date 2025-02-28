@@ -8,10 +8,13 @@ import sys
 
 # TODO: Change this path to your ykman config file
 CONFIG_FILE = "/Users/marcos/.config/ykman/config.json"
-KEYMAP = {}
+CONFIG = {}
 if os.path.exists(CONFIG_FILE):
-    KEYMAP = json.load(open(CONFIG_FILE, "r"))
-YKMAN_PATH = os.environ.get("YKMAN_PATH", "ykman")
+    CONFIG = json.load(open(CONFIG_FILE, "r"))
+
+KEYMAP = CONFIG.get("key_mapping", None)
+YKMAN_BIN = CONFIG.get("bin", "ykman")
+YKMAN_BIN = "/opt/homebrew/bin/ykman"
 
 
 def getMessage():
@@ -36,16 +39,18 @@ def sendMessage(encodedMessage):
 
 
 def getOtpCode(key):
-    result = run(f'{YKMAN_PATH} oath accounts code "{key}"')
+    result = run(f'{YKMAN_BIN} oath accounts code "{key}"')
     return result.strip().split(" ")[-1]
 
 
 def handleGenerateOtpMessage(receivedMessage):
-    key = KEYMAP.get(receivedMessage["pageUrl"])
+    key = receivedMessage.get("keyName", None)
+    if not key:
+        key = KEYMAP.get(receivedMessage.get("pageUrl", None), None)
     responseMessage = {
         "type": "otpResponse",
         "target": receivedMessage["target"],
-        "otp": getOtpCode(key) if key else "NOTFOUND",
+        "otp": getOtpCode(key) if key else "NOT_FOUND",
     }
     sendMessage(encodeMessage(responseMessage))
 
