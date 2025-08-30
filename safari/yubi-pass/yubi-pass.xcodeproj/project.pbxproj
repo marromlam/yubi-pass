@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		8DFBC56E2E6232F800C8B0FD /* yubi-pass Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8DFBC56D2E6232F800C8B0FD /* yubi-pass Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8DFBC5782E6232F800C8B0FD /* yubi-pass Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8DFBC5772E6232F800C8B0FD /* yubi-pass Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8DFBC99F2E62FA7300C8B0FD /* ykman in Resources */ = {isa = PBXBuildFile; fileRef = 8DFBC99E2E62FA7300C8B0FD /* ykman */; };
+		8DFBCF752E630AC400C8B0FD /* ykman in Resources */ = {isa = PBXBuildFile; fileRef = 8DFBC99E2E62FA7300C8B0FD /* ykman */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +60,7 @@
 		8DFBC5612E6232F800C8B0FD /* yubi-pass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "yubi-pass.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DFBC56D2E6232F800C8B0FD /* yubi-pass Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "yubi-pass Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DFBC5772E6232F800C8B0FD /* yubi-pass Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "yubi-pass Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DFBC99E2E62FA7300C8B0FD /* ykman */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ykman; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -227,6 +230,7 @@
 		8DFBC5322E6232F500C8B0FD = {
 			isa = PBXGroup;
 			children = (
+				8DFBC99E2E62FA7300C8B0FD /* ykman */,
 				8DFBC5372E6232F600C8B0FD /* Shared (App) */,
 				8DFBC5402E6232F800C8B0FD /* Shared (Extension) */,
 				8DFBC5512E6232F800C8B0FD /* iOS (App) */,
@@ -401,6 +405,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8DFBCF752E630AC400C8B0FD /* ykman in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,6 +420,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8DFBC99F2E62FA7300C8B0FD /* ykman in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

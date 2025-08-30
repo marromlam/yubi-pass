@@ -40,16 +40,25 @@ async function generateOtp(info, tab) {
     let domain = extractDomain(tab.url);
     console.log("Domain:", domain);
     
-    // Generate real OTP using the HTTP API
-    let otp = await generateRealOtp(domain);
+    // Generate OTP using Safari extension native messaging
+    let otp = await generateOtpViaExtension(domain);
     
     if (otp && otp !== "NO_KEY_FOUND" && otp !== "ERROR" && otp !== "TIMEOUT") {
-      console.log("Generated OTP:", otp);
+      console.log("🔐 YubiPass Background: OTP generation successful!");
+      console.log("🔐 YubiPass Background: Generated OTP:", otp);
+      
+      // Check if we have account information
+      if (typeof otp === 'object' && otp.account) {
+        console.log("🔐 YubiPass Background: Using account:", otp.account);
+        console.log("🔐 YubiPass Background: Final OTP:", otp.otp);
+      }
+      
+      console.log("🔐 YubiPass Background: Injecting OTP into page...");
       
       // Inject the OTP into the focused field
       await injectOtp(targetParams, otp);
     } else {
-      console.error("Failed to generate OTP:", otp);
+      console.error("🔐 YubiPass Background: Failed to generate OTP:", otp);
       // Show error to user
       await showError(otp);
     }
@@ -70,32 +79,30 @@ function extractDomain(url) {
   }
 }
 
-async function generateRealOtp(domain) {
+async function generateOtpViaExtension(domain) {
   try {
-    // Make HTTP request to local YubiPass server
-    const response = await fetch(`http://localhost:8080/generate?domain=${encodeURIComponent(domain)}`);
+    console.log("🔐 YubiPass Background: Requesting OTP via Safari extension for domain:", domain);
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    // Send message to the Safari extension handler
+    const response = await browser.runtime.sendNativeMessage("com.yubipass.extension", {
+      action: "generateOTP",
+      domain: domain
+    });
     
-    const data = await response.json();
-    console.log("YubiPass server response:", data);
+    console.log("🔐 YubiPass Background: Safari extension response:", response);
     
-    if (data.success) {
-      return data.otp;
+    if (response && response.success) {
+      console.log("🔐 YubiPass Background: OTP generation successful!");
+      console.log("🔐 YubiPass Background: Final OTP:", response.otp);
+      return response.otp;
     } else {
-      return "ERROR";
+      console.error("🔐 YubiPass Background: OTP generation failed!");
+      console.error("🔐 YubiPass Background: Error details:", response?.error || "Unknown error");
+      return response?.error || "ERROR";
     }
     
   } catch (error) {
-    console.error("Error calling YubiPass server:", error);
-    
-    // Check if server is not running
-    if (error.message.includes('Failed to fetch') || error.message.includes('ECONNREFUSED')) {
-      return "SERVER_OFFLINE";
-    }
-    
+    console.error("🔐 YubiPass Background: Error calling Safari extension:", error);
     return "ERROR";
   }
 }
@@ -198,7 +205,7 @@ function showErrorMessage(message) {
 
 async function injectOtp(targetParams, otp) {
   try {
-    console.log("Injecting OTP:", targetParams, otp);
+    console.log("🔐 YubiPass Background: Injecting OTP:", targetParams, otp);
     
     // Execute the content script to inject the OTP
     await browser.scripting.executeScript({
@@ -207,23 +214,31 @@ async function injectOtp(targetParams, otp) {
       args: [otp]
     });
     
-    console.log("OTP injected successfully");
+    console.log("🔐 YubiPass Background: OTP injected successfully!");
     
   } catch (error) {
-    console.error("Error injecting OTP:", error);
+    console.error("🔐 YubiPass Background: Error injecting OTP:", error);
   }
 }
 
 // Function to be injected into the page
 function injectOtpIntoField(otp) {
+  console.log("🔐 YubiPass Content: Injecting OTP into field:", otp);
+  
   // Get the currently focused element
   let elem = document.activeElement;
+  console.log("🔐 YubiPass Content: Target element:", elem);
   
   // Check if it's an input field
   if (!elem || !elem.matches('input, textarea, [contenteditable="true"]')) {
-    console.error("No editable element is currently focused");
+    console.error("🔐 YubiPass Content: No editable element is currently focused");
     return;
   }
+  
+  console.log("🔐 YubiPass Content: Injecting OTP into element:", elem);
+  console.log("🔐 YubiPass Content: Element type:", elem.type);
+  console.log("🔐 YubiPass Content: Element name:", elem.name);
+  console.log("🔐 YubiPass Content: Element id:", elem.id);
   
   // Clear the field first
   elem.value = "";
@@ -247,7 +262,8 @@ function injectOtpIntoField(otp) {
   elem.dispatchEvent(changeEvent);
   elem.dispatchEvent(keyupEvent);
   
-  console.log("OTP injected into field:", otp);
+  console.log("🔐 YubiPass Content: OTP successfully injected into field:", otp);
+  console.log("🔐 YubiPass Content: Field value after injection:", elem.value);
 }
 
 console.log("Background script setup complete");
