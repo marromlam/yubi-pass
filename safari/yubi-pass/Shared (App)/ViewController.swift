@@ -20,18 +20,21 @@ let extensionBundleIdentifier = "marromlam.yubi-pass.Extension"
 
 class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMessageHandler {
 
-    @IBOutlet var webView: WKWebView!
+    var webView: WKWebView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.webView.navigationDelegate = self
+        let config = WKWebViewConfiguration()
+        config.userContentController.add(self, name: "controller")
+        webView = WKWebView(frame: view.bounds, configuration: config)
+        webView.autoresizingMask = [.width, .height]
+        view.addSubview(webView)
+        webView.navigationDelegate = self
 
 #if os(iOS)
         self.webView.scrollView.isScrollEnabled = false
 #endif
-
-        self.webView.configuration.userContentController.add(self, name: "controller")
 
         self.webView.loadFileURL(Bundle.main.url(forResource: "Main", withExtension: "html")!, allowingReadAccessTo: Bundle.main.resourceURL!)
     }

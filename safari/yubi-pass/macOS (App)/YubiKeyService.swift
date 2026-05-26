@@ -1,12 +1,8 @@
 import Foundation
 
 class YubiKeyService {
-    static let shared = YubiKeyService();
-    
-    
+    static let shared = YubiKeyService()
 
-    
-    
     // Use only the bundled ykman binary from the app bundle
     private var ykmanPath: String {
         guard let localPath = Bundle.main.url(forResource: "ykman/ykman", withExtension: nil)?.path else {
@@ -26,15 +22,39 @@ class YubiKeyService {
     private var lastCacheUpdate: Date?
     private let cacheTimeout: TimeInterval = 300 // 5 minutes
     
-    // Key mapping configuration (similar to Python config)
-    private let keyMapping: [String: String] = [
-        "propylon-staging-ccms.auth.us-east-1.amazoncognito.com": "Propylon Staging CCMS",
-        "FIDO2": "FIDO"
-        // Add more mappings as needed
-    ]
+    // Key mapping loaded from extension storage via app group container
+    private var keyMapping: [String: String] = [:]
+
+    private init() {
+        loadKeyMappingFromStorage()
+    }
     
-    private init() {}
-    
+    // MARK: - Storage
+
+    /// Reloads domain→account mappings from the shared extension storage JSON file.
+    /// The extension writes codes as [{domain, codeName}] under "codes" key.
+    func loadKeyMappingFromStorage() {
+        guard let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: "group.marromlam.yubi-pass"
+        ) else {
+            print("🔐 YubiPass: App group container unavailable, no key mappings loaded")
+            return
+        }
+
+        let storageFile = containerURL.appendingPathComponent("codes.json")
+        guard let data = try? Data(contentsOf: storageFile),
+              let codes = try? JSONSerialization.jsonObject(with: data) as? [[String: String]] else {
+            print("🔐 YubiPass: No codes.json found in app group container")
+            return
+        }
+
+        keyMapping = Dictionary(uniqueKeysWithValues: codes.compactMap { entry -> (String, String)? in
+            guard let domain = entry["domain"], let codeName = entry["codeName"] else { return nil }
+            return (domain, codeName)
+        })
+        print("🔐 YubiPass: Loaded \(keyMapping.count) key mappings from storage")
+    }
+
     // MARK: - OTP Generation
     
     func generateOTP(for domain: String) -> Result<(otp: String, account: String), YubiKeyError> {
@@ -116,26 +136,31 @@ class YubiKeyService {
         do {
             try task.run()
             task.waitUntilExit()
-            
+
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(data: data, encoding: .utf8)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
             if task.terminationStatus == 0 {
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                if let output = String(data: data, encoding: .utf8) {
-                    let accounts = output.components(separatedBy: .newlines)
-                        .filter { !$0.isEmpty }
-                        .map { $0.trimmingCharacters(in: .whitespaces) }
-                    
-                    // Update cache
-                    accountCache.removeAll()
-                    for account in accounts {
-                        accountCache[account] = account
-                    }
-                    lastCacheUpdate = Date()
-                    
-                    return .success(accounts)
+                let accounts = output.components(separatedBy: .newlines)
+                    .map { $0.trimmingCharacters(in: .whitespaces) }
+                    .filter { !$0.isEmpty }
+
+                // Update cache
+                accountCache.removeAll()
+                for account in accounts {
+                    accountCache[account] = account
                 }
+                lastCacheUpdate = Date()
+
+                return .success(accounts)
             }
-            
-            return .failure(.noAccountsFound)
+
+            if output.isEmpty {
+                return .failure(.noAccountsFound)
+            }
+
+            return .failure(.ykmanError(message: output))
         } catch {
             return .failure(.executionError(error: error))
         }
@@ -146,15 +171,19 @@ class YubiKeyService {
     private func findKeyForDomain(_ domain: String) -> String? {
         print("🔐 YubiPass: Looking for key mapping for domain: \(domain)")
         
-        // First, try exact key mapping from configuration
-        if let mappedKey = keyMapping[domain] {
-            print("🔐 YubiPass: Found exact key mapping: \(domain) -> \(mappedKey)")
-            return mappedKey
-        }
-        
-        // Try partial key mapping (domain contains key or vice versa)
+        let domainLower = domain.lowercased()
+
+        // First, try exact key mapping from configuration (case-insensitive)
         for (mappedDomain, mappedKey) in keyMapping {
-            if domain.contains(mappedDomain) || mappedDomain.contains(domain) {
+            if mappedDomain.lowercased() == domainLower {
+                print("🔐 YubiPass: Found exact key mapping: \(domain) -> \(mappedKey)")
+                return mappedKey
+            }
+        }
+
+        // Try partial key mapping (case-insensitive)
+        for (mappedDomain, mappedKey) in keyMapping {
+            if domainLower.contains(mappedDomain.lowercased()) || mappedDomain.lowercased().contains(domainLower) {
                 print("🔐 YubiPass: Found partial key mapping: \(domain) -> \(mappedKey)")
                 return mappedKey
             }
@@ -198,76 +227,13 @@ class YubiKeyService {
     // MARK: - Utility Methods
     
     func isYkmanAvailable() -> Bool {
-        print("🔐 YubiPass: Checking if bundled ykman is available...")
-        
-        
-        
-        
-        func runYkmanCommand() {
-            guard let ykmanURL = Bundle.main.url(forResource: "ykman/ykman", withExtension: nil) else {
-                print("ykman not found in bundle")
-                return
-            }
-
-            let process = Process()
-            process.executableURL = ykmanURL
-            process.arguments = ["list"] // Example command
-
-            let outPipe = Pipe()
-            let errPipe = Pipe()
-            process.standardOutput = outPipe
-            process.standardError = errPipe
-
-            do {
-                try process.run()
-                process.waitUntilExit()
-
-                let outData = outPipe.fileHandleForReading.readDataToEndOfFile()
-                let errData = errPipe.fileHandleForReading.readDataToEndOfFile()
-
-                if let output = String(data: outData, encoding: .utf8),
-                   !output.isEmpty {
-                    print("Output:\n\(output)")
-                }
-
-                if let errorOutput = String(data: errData, encoding: .utf8),
-                   !errorOutput.isEmpty {
-                    print("Error:\n\(errorOutput)")
-                }
-
-            } catch {
-                print("Failed to run ykman: \(error)")
-            }
-        }
-        
-        let aaa = runYkmanCommand()
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         // Check if the bundled ykman exists and is executable
         let fileManager = FileManager.default
         guard let localPath = Bundle.main.url(forResource: "ykman/ykman", withExtension: nil)?.path else {
-            print("🔐 YubiPass: Bundled ykman binary not found in app bundle")
             return false
         }
         
-        if !fileManager.fileExists(atPath: localPath) {
-            print("🔐 YubiPass: Bundled ykman file does not exist at: \(localPath)")
-            return false
-        }
-        
-        if !fileManager.isExecutableFile(atPath: localPath) {
-            print("🔐 YubiPass: Bundled ykman file is not executable at: \(localPath)")
+        if !fileManager.fileExists(atPath: localPath) || !fileManager.isExecutableFile(atPath: localPath) {
             return false
         }
         
@@ -276,31 +242,30 @@ class YubiKeyService {
         process.executableURL = URL(fileURLWithPath: localPath)
         process.arguments = ["--version"]
         
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+        
         var isAvailable = false
         let semaphore = DispatchSemaphore(value: 0)
         
         process.terminationHandler = { (process) in
             isAvailable = process.terminationStatus == 0
-            print("🔐 YubiPass: Bundled ykman --version completed with exit code: \(process.terminationStatus)")
             semaphore.signal()
         }
         
         do {
             try process.run()
-            print("🔐 YubiPass: Bundled ykman --version command started successfully")
             
-            // Wait for completion with timeout
-            let result = semaphore.wait(timeout: .now() + 5.0)
+            // Wait for completion with longer timeout (10 seconds)
+            let result = semaphore.wait(timeout: .now() + 10.0)
             if result == .timedOut {
-                print("🔐 YubiPass: Bundled ykman --version command timed out")
+                process.terminate()
                 return false
             }
             
-            print("🔐 YubiPass: Bundled ykman is available: \(isAvailable)")
             return isAvailable
         } catch {
-            print("🔐 YubiPass: Error running bundled ykman --version: \(error)")
-            print("🔐 YubiPass: Error details: \(error.localizedDescription)")
             return false
         }
     }

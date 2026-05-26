@@ -11,6 +11,7 @@
 		8DFBC5782E6232F800C8B0FD /* yubi-pass Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8DFBC5772E6232F800C8B0FD /* yubi-pass Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8DFBC99F2E62FA7300C8B0FD /* ykman in Resources */ = {isa = PBXBuildFile; fileRef = 8DFBC99E2E62FA7300C8B0FD /* ykman */; };
 		8DFBCF752E630AC400C8B0FD /* ykman in Resources */ = {isa = PBXBuildFile; fileRef = 8DFBC99E2E62FA7300C8B0FD /* ykman */; };
+		A1B2C3D4E5F62E7800C8B0FD /* YubiKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F62E7900C8B0FD /* YubiKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,7 +73,6 @@
 				Resources/Icon.png,
 				Resources/Script.js,
 				Resources/Style.css,
-				ViewController.swift,
 			);
 			target = 8DFBC54E2E6232F800C8B0FD /* yubi-pass (iOS) */;
 		};
@@ -98,7 +98,6 @@
 				Resources/Icon.png,
 				Resources/Script.js,
 				Resources/Style.css,
-				ViewController.swift,
 			);
 			target = 8DFBC5602E6232F800C8B0FD /* yubi-pass (macOS) */;
 		};
@@ -112,6 +111,8 @@
 		8DFBC5AF2E6232F800C8B0FD /* Exceptions for "Shared (Extension)" folder in "yubi-pass Extension (iOS)" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				ContentView_iOS.swift,
+				CredentialProviderViewController_iOS.swift,
 				Resources/_locales,
 				Resources/background.js,
 				Resources/content.js,
@@ -120,13 +121,18 @@
 				Resources/popup.css,
 				Resources/popup.html,
 				Resources/popup.js,
+				Resources/YubiKeyServiceiOS.swift,
 				SafariWebExtensionHandler.swift,
+				ShareViewController_iOS.swift,
+				"YubiPass-AutoFill-Info.plist",
 			);
 			target = 8DFBC56C2E6232F800C8B0FD /* yubi-pass Extension (iOS) */;
 		};
 		8DFBC5B02E6232F800C8B0FD /* Exceptions for "Shared (Extension)" folder in "yubi-pass Extension (macOS)" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				ContentView_iOS.swift,
+				CredentialProviderViewController_iOS.swift,
 				Resources/_locales,
 				Resources/background.js,
 				Resources/content.js,
@@ -135,7 +141,10 @@
 				Resources/popup.css,
 				Resources/popup.html,
 				Resources/popup.js,
+				Resources/YubiKeyServiceiOS.swift,
 				SafariWebExtensionHandler.swift,
+				ShareViewController_iOS.swift,
+				"YubiPass-AutoFill-Info.plist",
 			);
 			target = 8DFBC5762E6232F800C8B0FD /* yubi-pass Extension (macOS) */;
 		};
@@ -214,6 +223,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F62E7800C8B0FD /* YubiKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +280,7 @@
 				8DFBC5702E6232F800C8B0FD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				8DFBC5372E6232F600C8B0FD /* Shared (App) */,
 				8DFBC5512E6232F800C8B0FD /* iOS (App) */,
 			);
 			name = "yubi-pass (iOS)";
@@ -294,6 +305,7 @@
 				8DFBC57A2E6232F800C8B0FD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				8DFBC5372E6232F600C8B0FD /* Shared (App) */,
 				8DFBC5622E6232F800C8B0FD /* macOS (App) */,
 			);
 			name = "yubi-pass (macOS)";
@@ -316,10 +328,12 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				8DFBC5402E6232F800C8B0FD /* Shared (Extension) */,
 				8DFBC5712E6232F800C8B0FD /* iOS (Extension) */,
 			);
 			name = "yubi-pass Extension (iOS)";
 			packageProductDependencies = (
+				A1B2C3D4E5F62E7900C8B0FD /* YubiKit */,
 			);
 			productName = "yubi-pass Extension (iOS)";
 			productReference = 8DFBC56D2E6232F800C8B0FD /* yubi-pass Extension.appex */;
@@ -338,6 +352,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				8DFBC5402E6232F800C8B0FD /* Shared (Extension) */,
 				8DFBC57B2E6232F800C8B0FD /* macOS (Extension) */,
 			);
 			name = "yubi-pass Extension (macOS)";
@@ -355,7 +370,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					8DFBC54E2E6232F800C8B0FD = {
 						CreatedOnToolsVersion = 16.4;
@@ -380,6 +395,9 @@
 			);
 			mainGroup = 8DFBC5322E6232F500C8B0FD;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A1B2C3D4E5F62E7A00C8B0FD /* XCRemoteSwiftPackageReference "yubikit-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8DFBC5502E6232F800C8B0FD /* Products */;
 			projectDirPath = "";
@@ -615,6 +633,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/yubi-pass.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 7LTA8K8A8R;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -626,7 +645,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -634,6 +653,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "marromlam.yubi-pass.Extension";
 				PRODUCT_NAME = "yubi-pass Extension";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -647,6 +667,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/yubi-pass.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 7LTA8K8A8R;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -658,7 +679,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -666,6 +687,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "marromlam.yubi-pass.Extension";
 				PRODUCT_NAME = "yubi-pass Extension";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -681,17 +703,17 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/yubi-pass.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 7LTA8K8A8R;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "yubi-pass";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -716,17 +738,17 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/yubi-pass.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 7LTA8K8A8R;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "yubi-pass";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -777,6 +799,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 7LTA8K8A8R;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -800,6 +823,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -839,6 +863,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 7LTA8K8A8R;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -855,6 +880,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -908,6 +934,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1B2C3D4E5F62E7A00C8B0FD /* XCRemoteSwiftPackageReference "yubikit-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Yubico/yubikit-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1B2C3D4E5F62E7900C8B0FD /* YubiKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D4E5F62E7A00C8B0FD /* XCRemoteSwiftPackageReference "yubikit-ios" */;
+			productName = YubiKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8DFBC5332E6232F500C8B0FD /* Project object */;
 }

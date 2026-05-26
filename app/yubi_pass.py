@@ -5,16 +5,16 @@ import os
 import json
 import sys
 
-
-# TODO: Change this path to your ykman config file
-CONFIG_FILE = "/Users/marcos/.config/ykman/config.json"
+CONFIG_FILE = os.path.expanduser("~/.config/ykman/config.json")
 CONFIG = {}
 if os.path.exists(CONFIG_FILE):
-    CONFIG = json.load(open(CONFIG_FILE, "r"))
+    with open(CONFIG_FILE, "r") as f:
+        CONFIG = json.load(f)
 
-KEYMAP = CONFIG.get("key_mapping", None)
-YKMAN_BIN = CONFIG.get("bin", "ykman")
-YKMAN_BIN = "/opt/homebrew/bin/ykman"
+KEYMAP = CONFIG.get("key_mapping", {})
+# Resolve ykman: prefer config value, then common Homebrew path, then PATH
+_default_ykman = "/opt/homebrew/bin/ykman" if os.path.isfile("/opt/homebrew/bin/ykman") else "ykman"
+YKMAN_BIN = CONFIG.get("bin", _default_ykman)
 
 
 def getMessage():
@@ -44,9 +44,10 @@ def getOtpCode(key):
 
 
 def handleGenerateOtpMessage(receivedMessage):
-    key = receivedMessage.get("keyName", None)
+    key = receivedMessage.get("keyName") or None
     if not key:
-        key = KEYMAP.get(receivedMessage.get("pageUrl", None), None)
+        page_url = receivedMessage.get("pageUrl")
+        key = KEYMAP.get(page_url) if page_url else None
     responseMessage = {
         "type": "otpResponse",
         "target": receivedMessage["target"],
